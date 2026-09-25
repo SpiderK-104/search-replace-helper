@@ -1,11 +1,8 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "search-replace-helper",
+	"name": "Search and replace helper",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"description": "A lightweight find and replace with a floating, semi-transparent and draggable panel. Highlights matches in the selection or the whole note as you type, supports regex and case sensitivity, and replaces with full undo support.",
+	"isDesktopOnly": true
 }

@@ -1,8 +1,153 @@
-/*
+.sr-helper__popup {
+	--sr-helper-opacity: 0.9;
+	position: fixed;
+	z-index: var(--layer-modal);
+	width: 340px;
+	max-width: calc(100vw - 16px);
+	box-sizing: border-box;
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+	font-size: var(--font-ui-small);
+	opacity: var(--sr-helper-opacity);
+	transition: opacity 100ms ease;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.sr-helper__popup:hover {
+	opacity: 1;
+}
 
-If your plugin does not need CSS, delete this file.
+.sr-helper__header {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+}
 
-*/
+.sr-helper__handle {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	font-size: 12px;
+	color: var(--text-muted);
+	cursor: grab;
+	user-select: none;
+	padding: 3px 6px;
+	border-radius: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.sr-helper__handle:active {
+	cursor: grabbing;
+}
+
+.sr-helper__close {
+	background: transparent;
+	border: none;
+	color: var(--text-muted);
+	font-size: 16px;
+	line-height: 1;
+	padding: 2px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.sr-helper__close:hover {
+	color: var(--text-normal);
+	background-color: var(--background-modifier-hover);
+}
+
+.sr-helper__row {
+	display: flex;
+	gap: 6px;
+	padding: 0 6px 6px;
+}
+
+.sr-helper__input {
+	flex: 1;
+	min-width: 0;
+	height: 28px;
+	padding: 0 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+}
+
+.sr-helper__input:focus {
+	border-color: var(--interactive-accent);
+	outline: none;
+}
+
+.sr-helper__option,
+.sr-helper__action {
+	height: 28px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	font-size: 12px;
+	line-height: 1;
+	padding: 0 8px;
+	cursor: pointer;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.sr-helper__option:hover,
+.sr-helper__action:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.sr-helper__option-active {
+	background-color: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.sr-helper__option-active:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+.sr-helper__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 2px 8px 8px;
+}
+
+.sr-helper__count {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.sr-helper__hint {
+	color: var(--text-faint);
+	font-size: 11px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.sr-helper-match {
+	background-color: color-mix(
+		in srgb,
+		var(--text-highlight-bg) 45%,
+		transparent
+	);
+	border-radius: 2px;
+}
+
+.sr-helper-match-current {
+	background-color: var(--text-highlight-bg);
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px var(--interactive-accent) inset;
+}
