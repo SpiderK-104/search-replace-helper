@@ -1,20 +1,44 @@
 # Search and replace helper / 搜索替换助手
 
-A lightweight find-and-replace panel for [Obsidian](https://obsidian.md) that you can summon with **Alt+D** over any note. It highlights matches as you type and jumps straight from writing to a targeted find-and-replace.
+> Select text. Invoke your configured shortcut. Type what you want to find. Press `Enter`.
+>
+> 选中文字，按下你配置的快捷键，输入想查找的内容，按 `Enter`。
 
-一个轻量的 Obsidian 查找替换面板，在任何笔记上按 **Alt+D** 即可呼出。随着输入实时高亮所有匹配项，让你无需打开原生搜索面板或笨重的弹窗，就能快速定位并替换内容。
+A focused find-and-replace panel for [Obsidian](https://obsidian.md) that removes the most annoying extra step: selected text is never copied into the query field. The selected range is highlighted as your search scope, the **Find** field starts empty, and matches appear in a separate color.
+
+一个专注于查找替换的 Obsidian 面板，专门去掉最麻烦的多余一步：选中的文字不会被复制到查询框。选区会作为搜索范围单独高亮，**查找** 输入框从空白开始，命中结果会用另一种颜色显示。
 
 ---
 
 ## English
 
+### Why it exists
+
+A typical find-and-replace flow creates needless cleanup:
+
+1. Select the text you want to edit.
+2. Open find and replace; the selection is copied into the query.
+3. Delete the copied text.
+4. Type the query you actually meant.
+5. Replace.
+
+This plugin removes the middle cleanup step. The selection remains the search scope, while the query field stays empty until you type what you actually want to find.
+
+### The shortest workflow
+
+1. Select text.
+2. Invoke **Find and replace** from the command palette or your configured hotkey.
+3. Type the desired query in the empty **Find** field.
+4. Press `Enter` to replace the current match, or `Shift+Enter` to replace all matches.
+
 ### Features
 
-- **Floating, draggable, semi-transparent panel** – non-modal by design; keep it out of the way while you edit.
+- **No prefill, no cleanup** – the selected text is never copied into the query field, so you can start searching immediately.
 - **Selection-aware scope** – with a selection, all find-and-replace actions run *inside* the selection; otherwise the whole note is searched.
-- **Live highlighting + match count** – matches are highlighted in the editor as you type, with a `current/total` counter.
+- **Two-stage highlighting** – the selected scope uses one highlight color; matches and the current match use separate, clearer colors.
+- **Live match count** – type to see the `current/total` counter update immediately.
 - **Options** – plain text or regular expression, and match-case toggle.
-- **Keyboard-first**:
+- **Keyboard-first replacement**:
   - `Enter` – replace the current match and jump to the next one.
   - `Shift+Enter` – replace all matches in scope.
   - `↑` / `↓` – move between matches without replacing.
@@ -45,19 +69,18 @@ This produces `main.js`, `manifest.json` and `styles.css` in the repository root
 
 ### Usage
 
-1. Place the cursor in a note, select a range, or simply press **Alt+D**.
-2. Start typing in the **Find** field. Matches are highlighted immediately and the counter shows `current/total`.
-3. Type a replacement in the **Replace** field.
-4. Press **Enter** to replace the current match and move to the next, or **Shift+Enter** to replace them all.
-5. Press **Esc** to close the panel and remove all highlights.
+1. Select the text you want to edit.
+2. Invoke **Find and replace** from the command palette or your configured hotkey.
+3. The selected range is highlighted while the **Find** field stays empty. Type the query you want; matches appear in a different highlight color.
+4. Type the replacement in the **Replace** field.
+5. Press **Enter** to replace the current match, or **Shift+Enter** to replace all matches. Press **Esc** to close the panel.
 
-The hotkey can be changed at any time in **Settings → Hotkeys**.
+There is no need to delete the selected text from the query field: it is never inserted there. The plugin does not reserve a shortcut; assign **Find and replace** to your preferred key, such as `Ctrl+D`, in **Settings → Hotkeys**.
 
 ### Options
 
 | Setting                 | Description                                                     |
 | ----------------------- | --------------------------------------------------------------- |
-| Prefill from selection  | Start search with the currently selected text.                  |
 | Regex by default        | Interpret the find text as a regular expression by default.      |
 | Match case by default   | Make searches case-sensitive by default.                        |
 | Popup opacity           | Adjust transparency of the floating panel.                      |
@@ -89,13 +112,33 @@ See [LICENSE](./LICENSE).
 
 ## 中文
 
+### 为什么需要它
+
+传统查找替换经常带来一段没有价值的清理工作：
+
+1. 选中要修改的文字。
+2. 打开查找替换，选中的文字被复制到查询框。
+3. 先删除复制过来的文字。
+4. 再输入真正想查找的内容。
+5. 最后执行替换。
+
+本插件直接去掉中间的清理步骤：选区继续作为搜索范围，查询框保持空白，你只需要输入真正想查找的内容。
+
+### 最短操作路径
+
+1. 选中文字。
+2. 从命令面板运行 **Find and replace**，或按下你配置的快捷键。
+3. 在空白的 **查找** 输入框中输入想查找的内容。
+4. 按 `Enter` 替换当前命中项，或按 `Shift+Enter` 替换全部命中项。
+
 ### 功能特性
 
-- **悬浮可拖拽的半透明面板** – 非模态设计，编辑时不会遮挡、也不打断你的操作。
+- **不预填、不清理** – 选中的文字不会被复制到查询框，打开后可以直接输入搜索内容。
 - **选区感知的作用范围** – 选中文本时，所有查找/替换操作只作用于选区内部；没有选区时则搜索整个笔记。
-- **实时高亮与计数** – 输入的同时在编辑器中高亮所有匹配项，并显示 `当前/总数` 计数。
+- **两阶段高亮** – 选区使用一种颜色，命中项和当前命中项使用另一种更醒目的颜色。
+- **实时命中计数** – 输入时立即显示 `当前/总数`，无需等待或切换窗口。
 - **选项开关** – 纯文本或正则表达式，以及区分大小写开关。
-- **键盘优先操作**：
+- **键盘优先替换**：
   - `Enter` – 替换当前匹配项并跳到下一处。
   - `Shift+Enter` – 替换作用范围内的所有匹配项。
   - `↑` / `↓` – 在匹配项之间移动（不进行替换）。
@@ -126,19 +169,18 @@ npm run build
 
 ### 使用方法
 
-1. 将光标置于笔记中、选中一段文本，或直接按 **Alt+D**。
-2. 在 **查找** 输入框中输入内容，匹配项会立即高亮并显示 `当前/总数`。
-3. 在 **替换** 输入框中输入替换文本。
-4. 按 **Enter** 替换当前匹配项并跳到下一处，或按 **Shift+Enter** 全部替换。
-5. 按 **Esc** 关闭面板并清除所有高亮。
+1. 选中要修改的文字。
+2. 从命令面板运行 **Find and replace**，或按下你配置的快捷键。
+3. 选区会先以单独颜色高亮，**查找** 输入框保持为空；直接输入想查找的内容，命中项会使用另一种颜色显示。
+4. 在 **替换** 输入框中输入替换文本。
+5. 按 **Enter** 替换当前命中项，或按 **Shift+Enter** 全部替换；按 **Esc** 关闭面板。
 
-热键可随时在 **设置 → 快捷键** 中进行修改。
+不需要再从查询框里删除选中的文字，因为它根本不会被复制进去。本插件不占用固定快捷键；可在 **设置 → 快捷键** 中为 **Find and replace** 配置任意按键，例如 `Ctrl+D`。
 
 ### 设置项
 
 | 设置项               | 说明                                         |
 | -------------------- | -------------------------------------------- |
-| 从选区预填           | 以当前选中的文本作为初始搜索词。             |
 | 默认使用正则         | 默认将查找内容解释为正则表达式。             |
 | 默认区分大小写       | 默认开启大小写敏感搜索。                     |
 | 面板透明度           | 调节悬浮面板的透明度。                       |

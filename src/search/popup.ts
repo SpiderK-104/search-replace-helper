@@ -185,16 +185,10 @@ export class SearchReplacePopup {
 
 			const onMove = (moveEvent: MouseEvent): void => {
 				moveEvent.preventDefault();
-				const maxX = activeWindow.innerWidth - this.root.offsetWidth - 4;
-				const maxY = activeWindow.innerHeight - this.root.offsetHeight - 4;
-				this.root.style.left = `${Math.min(
-					Math.max(startLeft + moveEvent.clientX - startX, 4),
-					Math.max(maxX, 4),
-				)}px`;
-				this.root.style.top = `${Math.min(
-					Math.max(startTop + moveEvent.clientY - startY, 4),
-					Math.max(maxY, 4),
-				)}px`;
+				this.place({
+					x: startLeft + moveEvent.clientX - startX,
+					y: startTop + moveEvent.clientY - startY,
+				});
 			};
 			const onUp = (): void => {
 				activeWindow.removeEventListener('mousemove', onMove);
@@ -210,20 +204,35 @@ export class SearchReplacePopup {
 			'--sr-helper-opacity',
 			String(this.handlers.getOpacity()),
 		);
+		// Append first so the panel can be measured, then always give it explicit
+		// coordinates. A `position: fixed` element left at `top/left: auto` falls
+		// back to its static position, which is *below* Obsidian's full-height
+		// `.app-container`; `body` is `overflow: clip` + `contain: strict`, so it
+		// gets clipped away and the panel is invisible and unclickable.
 		document.body.appendChild(this.root);
-		if (position) {
-			const maxX = activeWindow.innerWidth - this.root.offsetWidth - 4;
-			const maxY = activeWindow.innerHeight - this.root.offsetHeight - 4;
-			this.root.style.left = `${Math.min(
-				Math.max(position.x, 4),
-				Math.max(maxX, 4),
-			)}px`;
-			this.root.style.top = `${Math.min(
-				Math.max(position.y, 4),
-				Math.max(maxY, 4),
-			)}px`;
-		}
+		this.place(position ?? this.defaultPosition());
 		this.focusSearch();
+	}
+
+	private place(position: PopupPoint): void {
+		const maxX = Math.max(
+			activeWindow.innerWidth - this.root.offsetWidth - 4,
+			4,
+		);
+		const maxY = Math.max(
+			activeWindow.innerHeight - this.root.offsetHeight - 4,
+			4,
+		);
+		this.root.style.left = `${Math.min(Math.max(position.x, 4), maxX)}px`;
+		this.root.style.top = `${Math.min(Math.max(position.y, 4), maxY)}px`;
+	}
+
+	private defaultPosition(): PopupPoint {
+		const width = this.root.offsetWidth || 340;
+		return {
+			x: (activeWindow.innerWidth - width) / 2,
+			y: activeWindow.innerHeight * 0.12,
+		};
 	}
 
 	hide(): void {

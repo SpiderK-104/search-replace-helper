@@ -5,7 +5,6 @@ export interface SearchReplaceSettings {
 	defaultRegex: boolean;
 	defaultCaseSensitive: boolean;
 	popupOpacity: number;
-	prefillSelection: boolean;
 	rememberLastPosition: boolean;
 }
 
@@ -13,7 +12,6 @@ export const DEFAULT_SETTINGS: SearchReplaceSettings = {
 	defaultRegex: false,
 	defaultCaseSensitive: false,
 	popupOpacity: 0.9,
-	prefillSelection: true,
 	rememberLastPosition: true,
 };
 
@@ -28,20 +26,6 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Prefill from selection')
-			.setDesc(
-				'Start search with the currently selected text when it is not empty.',
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.prefillSelection)
-					.onChange(async (value) => {
-						this.plugin.settings.prefillSelection = value;
-						await this.plugin.saveSettings();
-					}),
-			);
 
 		new Setting(containerEl)
 			.setName('Regex by default')

@@ -37,6 +37,7 @@ export const setSearchIndexEffect = StateEffect.define<number>();
 export const searchReplacedEffect = StateEffect.define<{ after: number }>();
 export const clearSearchEffect = StateEffect.define<null>();
 
+const selectionDecoration = Decoration.mark({ class: 'sr-helper-selection' });
 const matchDecoration = Decoration.mark({ class: 'sr-helper-match' });
 const currentDecoration = Decoration.mark({ class: 'sr-helper-match-current' });
 
@@ -228,10 +229,19 @@ function updateField(
 }
 
 function buildDecorations(value: SearchFieldValue): DecorationSet {
-	if (value.matches.length === 0) {
-		return Decoration.none;
-	}
 	const builder = new RangeSetBuilder<Decoration>();
+	if (
+		value.active &&
+		value.config.term.length === 0 &&
+		value.scope &&
+		value.scope.from < value.scope.to
+	) {
+		builder.add(
+			value.scope.from,
+			value.scope.to,
+			selectionDecoration,
+		);
+	}
 	for (let i = 0; i < value.matches.length; i++) {
 		const { from, to } = value.matches[i]!;
 		if (from < to) {

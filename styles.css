@@ -137,6 +137,16 @@
 	text-overflow: ellipsis;
 }
 
+.sr-helper-selection {
+	background-color: var(--background-modifier-hover);
+	background-color: color-mix(
+		in srgb,
+		var(--interactive-accent) 28%,
+		transparent
+	);
+	border-radius: 2px;
+}
+
 .sr-helper-match {
 	background-color: color-mix(
 		in srgb,

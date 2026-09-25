@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { MarkdownView, Notice, Plugin } from 'obsidian';
 import {
 	DEFAULT_SETTINGS,
 	SearchReplaceSettings,
@@ -19,10 +19,24 @@ export default class SearchReplaceHelperPlugin extends Plugin {
 		this.addCommand({
 			id: 'open-find-replace',
 			name: 'Find and replace',
-			editorCallback: (editor) => {
-				this.controller.open(editor);
+			callback: () => {
+				const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+				if (!view?.editor) {
+					new Notice('Open a Markdown note before using find and replace.');
+					return;
+				}
+				try {
+					this.controller.open(view.editor);
+				} catch (error) {
+					console.error(
+						'[search-replace-helper] Failed to open Find and replace.',
+						error,
+					);
+					new Notice(
+						'Find and replace could not access the current editor. Reload the note and try again.',
+					);
+				}
 			},
-			hotkeys: [{ modifiers: ['Alt'], key: 'D' }],
 		});
 
 		this.addSettingTab(new SearchReplaceSettingTab(this.app, this));

@@ -2,14 +2,15 @@ import type { Editor, EditorPosition } from 'obsidian';
 import type { EditorView } from '@codemirror/view';
 import type { DocRange } from '../types';
 
-const CM_PROPERTY = 'cm' as const;
-
 export function getCmView(editor: Editor): EditorView {
-	const view = (editor as unknown as Record<string, unknown>)[CM_PROPERTY] as
+	const editorInternals = editor as unknown as Record<string, unknown>;
+	const view = (editorInternals.cm ?? editorInternals.cmEditor) as
 		| EditorView
 		| undefined;
 	if (!view) {
-		throw new Error('No CodeMirror view available for this editor.');
+		throw new Error(
+			'No CodeMirror view is available on the current editor. The note may still be loading or may not be in source mode.',
+		);
 	}
 	return view;
 }
@@ -45,12 +46,4 @@ export function getSelectionBoundingRange(editor: Editor): DocRange | null {
 		return null;
 	}
 	return { from, to };
-}
-
-export function prefillTerm(editor: Editor, maxLength: number): string {
-	const text = editor.getSelection();
-	if (!text) {
-		return '';
-	}
-	return text.replace(/\r?\n/g, ' ').trim().slice(0, maxLength);
 }

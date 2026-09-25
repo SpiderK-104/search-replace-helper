@@ -2,8 +2,7 @@ import { StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { MarkdownView, type Editor } from 'obsidian';
 import type SearchReplaceHelperPlugin from '../main';
-import { MAX_PREFILL_LENGTH } from '../constants';
-import { getCmView, getSelectionBoundingRange, prefillTerm } from '../utils/editor';
+import { getCmView, getSelectionBoundingRange } from '../utils/editor';
 import {
 	clearSearchEffect,
 	makeReplacementText,
@@ -65,11 +64,8 @@ export class SearchReplaceController {
 		ensureExtension(view);
 
 		const scope = getSelectionBoundingRange(editor);
-		const term = this.plugin.settings.prefillSelection
-			? prefillTerm(editor, MAX_PREFILL_LENGTH)
-			: '';
 		const config: SearchConfig = {
-			term,
+			term: '',
 			regex: this.plugin.settings.defaultRegex,
 			caseSensitive: this.plugin.settings.defaultCaseSensitive,
 		};
@@ -80,7 +76,7 @@ export class SearchReplaceController {
 
 		this.lastSynced = null;
 		this.popup = new SearchReplacePopup(this.makeHandlers());
-		this.popup.setTerm(term);
+		this.popup.setTerm('');
 		this.popup.setOptions(config.regex, config.caseSensitive);
 		this.popup.setReplacement('');
 		this.popup.show(
