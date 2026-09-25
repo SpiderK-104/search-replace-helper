@@ -1,8 +1,8 @@
 {
 	"id": "search-replace-helper",
 	"name": "Search and replace helper",
-	"version": "1.0.1",
-	"minAppVersion": "1.0.1",
+	"version": "1.0.11",
+	"minAppVersion": "1.0.11",
 	"description": "A lightweight find and replace with a floating, semi-transparent and draggable panel. Highlights matches in the selection or the whole note as you type, supports regex and case sensitivity, and replaces with full undo support.",
 	"isDesktopOnly": true,
 	"author":"fy36"
