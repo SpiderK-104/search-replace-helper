@@ -1,4 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
+import type { SettingDefinitionItem } from 'obsidian';
 import type SearchReplaceHelperPlugin from './main';
 
 export interface SearchReplaceSettings {
@@ -21,6 +22,37 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: SearchReplaceHelperPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: 'Regex by default',
+				desc: 'Interpret the search term as a regular expression by default.',
+				control: { type: 'toggle', key: 'defaultRegex' },
+			},
+			{
+				name: 'Match case by default',
+				desc: 'Make searches case sensitive by default.',
+				control: { type: 'toggle', key: 'defaultCaseSensitive' },
+			},
+			{
+				name: 'Popup opacity',
+				desc: 'Opacity of the floating window. Increase for better legibility.',
+				control: {
+					type: 'slider',
+					key: 'popupOpacity',
+					min: 0.6,
+					max: 1,
+					step: 0.05,
+				},
+			},
+			{
+				name: 'Remember popup position',
+				desc: 'Reopen the floating window at its last position within the session.',
+				control: { type: 'toggle', key: 'rememberLastPosition' },
+			},
+		];
 	}
 
 	display(): void {
@@ -58,7 +90,6 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 				slider
 					.setLimits(0.6, 1, 0.05)
 					.setValue(this.plugin.settings.popupOpacity)
-					.setDynamicTooltip()
 					.onChange(async (value) => {
 						this.plugin.settings.popupOpacity = value;
 						await this.plugin.saveSettings();
