@@ -5,16 +5,40 @@ import type SearchReplaceHelperPlugin from './main';
 export interface SearchReplaceSettings {
 	defaultRegex: boolean;
 	defaultCaseSensitive: boolean;
+	selectionHighlightColor: string;
 	popupOpacity: number;
+	popupFontSize: number;
 	rememberLastPosition: boolean;
 }
 
 export const DEFAULT_SETTINGS: SearchReplaceSettings = {
 	defaultRegex: false,
 	defaultCaseSensitive: false,
+	selectionHighlightColor: '#4f7cff',
 	popupOpacity: 0.9,
+	popupFontSize: 14,
 	rememberLastPosition: true,
 };
+
+const HIGHLIGHT_COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+const MIN_POPUP_FONT_SIZE = 12;
+const MAX_POPUP_FONT_SIZE = 20;
+
+export function normalizeSelectionHighlightColor(value: unknown): string {
+	return typeof value === 'string' && HIGHLIGHT_COLOR_PATTERN.test(value)
+		? value
+		: DEFAULT_SETTINGS.selectionHighlightColor;
+}
+
+export function normalizePopupFontSize(value: unknown): number {
+	if (typeof value !== 'number' || !Number.isFinite(value)) {
+		return DEFAULT_SETTINGS.popupFontSize;
+	}
+	return Math.min(
+		MAX_POPUP_FONT_SIZE,
+		Math.max(MIN_POPUP_FONT_SIZE, Math.round(value)),
+	);
+}
 
 export class SearchReplaceSettingTab extends PluginSettingTab {
 	plugin: SearchReplaceHelperPlugin;
@@ -24,7 +48,7 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
-	getSettingDefinitions(): SettingDefinitionItem[] {
+	override getSettingDefinitions(): SettingDefinitionItem[] {
 		return [
 			{
 				name: 'Regex by default',
@@ -37,6 +61,15 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 				control: { type: 'toggle', key: 'defaultCaseSensitive' },
 			},
 			{
+				name: 'Selection highlight color',
+				desc: 'Choose the color used to highlight the selected search scope.',
+				control: {
+					type: 'color',
+					key: 'selectionHighlightColor',
+					defaultValue: DEFAULT_SETTINGS.selectionHighlightColor,
+				},
+			},
+			{
 				name: 'Popup opacity',
 				desc: 'Opacity of the floating window. Increase for better legibility.',
 				control: {
@@ -45,6 +78,19 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 					min: 0.6,
 					max: 1,
 					step: 0.05,
+				},
+			},
+			{
+				name: 'Popup font size',
+				desc: 'Adjust the font size of the floating window.',
+				control: {
+					type: 'slider',
+					key: 'popupFontSize',
+					min: MIN_POPUP_FONT_SIZE,
+					max: MAX_POPUP_FONT_SIZE,
+					step: 1,
+					defaultValue: DEFAULT_SETTINGS.popupFontSize,
+					displayFormat: (value) => `${value}px`,
 				},
 			},
 			{
@@ -84,6 +130,20 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName('Selection highlight color')
+			.setDesc('Choose the color used to highlight the selected search scope.')
+			.addColorPicker((colorPicker) =>
+				colorPicker
+					.setValue(this.plugin.settings.selectionHighlightColor)
+					.onChange(async (value) => {
+						this.plugin.settings.selectionHighlightColor =
+							normalizeSelectionHighlightColor(value);
+						this.plugin.controller.updateAppearance();
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName('Popup opacity')
 			.setDesc('Opacity of the floating window. Increase for better legibility.')
 			.addSlider((slider) =>
@@ -92,6 +152,21 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.popupOpacity)
 					.onChange(async (value) => {
 						this.plugin.settings.popupOpacity = value;
+						this.plugin.controller.updateAppearance();
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName('Popup font size')
+			.setDesc('Adjust the font size of the floating window.')
+			.addSlider((slider) =>
+				slider
+					.setLimits(MIN_POPUP_FONT_SIZE, MAX_POPUP_FONT_SIZE, 1)
+					.setValue(this.plugin.settings.popupFontSize)
+					.onChange(async (value) => {
+						this.plugin.settings.popupFontSize = normalizePopupFontSize(value);
+						this.plugin.controller.updateAppearance();
 						await this.plugin.saveSettings();
 					}),
 			);

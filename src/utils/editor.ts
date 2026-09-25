@@ -1,4 +1,4 @@
-import type { Editor, EditorPosition } from 'obsidian';
+import type { Editor } from 'obsidian';
 import type { EditorView } from '@codemirror/view';
 import type { DocRange } from '../types';
 
@@ -15,32 +15,15 @@ export function getCmView(editor: Editor): EditorView {
 	return view;
 }
 
-function offsetAt(editor: Editor, pos: EditorPosition): number {
-	const withOffset = editor as unknown as {
-		posToOffset?: (position: EditorPosition) => number;
-	};
-	if (typeof withOffset.posToOffset === 'function') {
-		return withOffset.posToOffset(pos);
-	}
-	let offset = pos.ch;
-	for (let line = 0; line < pos.line; line++) {
-		offset += editor.getLine(line).length + 1;
-	}
-	return offset;
-}
-
-export function getSelectionBoundingRange(editor: Editor): DocRange | null {
-	const selections = editor.listSelections();
-	if (selections.length === 0) {
-		return null;
-	}
+export function getSelectionBoundingRange(view: EditorView): DocRange | null {
 	let from = Number.POSITIVE_INFINITY;
 	let to = Number.NEGATIVE_INFINITY;
-	for (const selection of selections) {
-		const offsetAnchor = offsetAt(editor, selection.anchor);
-		const offsetHead = offsetAt(editor, selection.head);
-		from = Math.min(from, offsetAnchor, offsetHead);
-		to = Math.max(to, offsetAnchor, offsetHead);
+	for (const range of view.state.selection.ranges) {
+		if (range.from === range.to) {
+			continue;
+		}
+		from = Math.min(from, range.from);
+		to = Math.max(to, range.to);
 	}
 	if (!Number.isFinite(from) || from === to) {
 		return null;

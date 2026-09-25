@@ -65,6 +65,22 @@ interface MatchStep {
 	match?: RegExpExecArray;
 }
 
+function boundedScope(doc: Text, scope: DocRange | null): DocRange | null {
+	if (!scope) {
+		return null;
+	}
+	const first = Number.isFinite(scope.from) ? scope.from : 0;
+	const second = Number.isFinite(scope.to) ? scope.to : 0;
+	return {
+		from: Math.max(0, Math.min(doc.length, Math.min(first, second))),
+		to: Math.max(0, Math.min(doc.length, Math.max(first, second))),
+	};
+}
+
+function isInScope(range: DocRange, scope: DocRange | null): boolean {
+	return scope === null || (range.from >= scope.from && range.to <= scope.to);
+}
+
 function collectMatches(
 	doc: Text,
 	config: SearchConfig,
@@ -74,8 +90,9 @@ function collectMatches(
 		return { matches: [], truncated: false, invalidRegex: false };
 	}
 
-	const from = scope?.from ?? 0;
-	const to = scope?.to ?? doc.length;
+	const effectiveScope = boundedScope(doc, scope);
+	const from = effectiveScope?.from ?? 0;
+	const to = effectiveScope?.to ?? doc.length;
 
 	let cursor: Iterator<MatchStep>;
 	if (config.regex) {
@@ -108,7 +125,11 @@ function collectMatches(
 		if (step.done) {
 			break;
 		}
-		if (step.value.from >= step.value.to) {
+		if (
+			step.value.from < from ||
+			step.value.to > to ||
+			step.value.from >= step.value.to
+		) {
 			continue;
 		}
 		if (matches.length >= MAX_MATCHES) {
@@ -230,24 +251,25 @@ function updateField(
 
 function buildDecorations(value: SearchFieldValue): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
+	const scope = value.scope;
 	if (
 		value.active &&
 		value.config.term.length === 0 &&
-		value.scope &&
-		value.scope.from < value.scope.to
+		scope &&
+		scope.from < scope.to
 	) {
 		builder.add(
-			value.scope.from,
-			value.scope.to,
+			scope.from,
+			scope.to,
 			selectionDecoration,
 		);
 	}
 	for (let i = 0; i < value.matches.length; i++) {
-		const { from, to } = value.matches[i]!;
-		if (from < to) {
+		const match = value.matches[i]!;
+		if (match.from < match.to && isInScope(match, scope)) {
 			builder.add(
-				from,
-				to,
+				match.from,
+				match.to,
 				i === value.currentIndex ? currentDecoration : matchDecoration,
 			);
 		}

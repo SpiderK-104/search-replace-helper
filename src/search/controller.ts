@@ -17,6 +17,7 @@ import {
 import { SearchReplacePopup, type PopupPoint, type PopupHandlers } from './popup';
 
 const installedViews = new WeakSet<EditorView>();
+const SELECTION_HIGHLIGHT_COLOR_VARIABLE = '--sr-helper-selection-color';
 
 function ensureExtension(view: EditorView): void {
 	if (installedViews.has(view)) {
@@ -49,6 +50,19 @@ export class SearchReplaceController {
 		});
 	}
 
+	isOpen(): boolean {
+		return this.popup !== null;
+	}
+
+	updateAppearance(): void {
+		this.boundView?.dom.style.setProperty(
+			SELECTION_HIGHLIGHT_COLOR_VARIABLE,
+			this.plugin.settings.selectionHighlightColor,
+		);
+		this.popup?.setOpacity(this.plugin.settings.popupOpacity);
+		this.popup?.setFontSize(this.plugin.settings.popupFontSize);
+	}
+
 	open(editor: Editor): void {
 		const view = getCmView(editor);
 		if (this.popup && this.boundView) {
@@ -62,8 +76,9 @@ export class SearchReplaceController {
 		this.boundView = view;
 		this.boundEditor = editor;
 		ensureExtension(view);
+		this.updateAppearance();
 
-		const scope = getSelectionBoundingRange(editor);
+		const scope = getSelectionBoundingRange(view);
 		const config: SearchConfig = {
 			term: '',
 			regex: this.plugin.settings.defaultRegex,
@@ -111,6 +126,7 @@ export class SearchReplaceController {
 			onNavigate: (direction) => this.navigate(direction),
 			onClose: () => this.close(),
 			getOpacity: () => this.plugin.settings.popupOpacity,
+			getFontSize: () => this.plugin.settings.popupFontSize,
 		};
 	}
 
@@ -285,6 +301,9 @@ export class SearchReplaceController {
 	}
 
 	private destroySession(): void {
+		this.boundView?.dom.style.removeProperty(
+			SELECTION_HIGHLIGHT_COLOR_VARIABLE,
+		);
 		if (this.boundView && this.popup) {
 			this.boundView.dispatch({ effects: clearSearchEffect.of(null) });
 		}

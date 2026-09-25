@@ -1,6 +1,8 @@
 import { MarkdownView, Notice, Plugin } from 'obsidian';
 import {
 	DEFAULT_SETTINGS,
+	normalizePopupFontSize,
+	normalizeSelectionHighlightColor,
 	SearchReplaceSettings,
 	SearchReplaceSettingTab,
 } from './settings';
@@ -20,6 +22,10 @@ export default class SearchReplaceHelperPlugin extends Plugin {
 			id: 'open-find-replace',
 			name: 'Find and replace',
 			callback: () => {
+				if (this.controller.isOpen()) {
+					this.controller.close();
+					return;
+				}
 				const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 				if (!view?.editor) {
 					new Notice('Open a Markdown note before using find and replace.');
@@ -47,11 +53,16 @@ export default class SearchReplaceHelperPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
+		const settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
 			(await this.loadData()) as Partial<SearchReplaceSettings>,
 		);
+		settings.selectionHighlightColor = normalizeSelectionHighlightColor(
+			settings.selectionHighlightColor,
+		);
+		settings.popupFontSize = normalizePopupFontSize(settings.popupFontSize);
+		this.settings = settings;
 	}
 
 	async saveSettings() {

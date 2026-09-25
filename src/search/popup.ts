@@ -14,6 +14,7 @@ export interface PopupHandlers {
 	onNavigate(direction: 1 | -1): void;
 	onClose(): void;
 	getOpacity(): number;
+	getFontSize(): number;
 }
 
 export class SearchReplacePopup {
@@ -200,10 +201,8 @@ export class SearchReplacePopup {
 	}
 
 	show(position?: PopupPoint): void {
-		this.root.style.setProperty(
-			'--sr-helper-opacity',
-			String(this.handlers.getOpacity()),
-		);
+		this.setOpacity(this.handlers.getOpacity());
+		this.setFontSize(this.handlers.getFontSize());
 		// Append first so the panel can be measured, then always give it explicit
 		// coordinates. A `position: fixed` element left at `top/left: auto` falls
 		// back to its static position, which is *below* Obsidian's full-height
@@ -228,11 +227,19 @@ export class SearchReplacePopup {
 	}
 
 	private defaultPosition(): PopupPoint {
-		const width = this.root.offsetWidth || 340;
+		const width = this.root.offsetWidth || 440;
 		return {
 			x: (activeWindow.innerWidth - width) / 2,
 			y: activeWindow.innerHeight * 0.12,
 		};
+	}
+
+	setOpacity(opacity: number): void {
+		this.root.style.setProperty('--sr-helper-opacity', String(opacity));
+	}
+
+	setFontSize(fontSize: number): void {
+		this.root.style.setProperty('--sr-helper-font-size', `${fontSize}px`);
 	}
 
 	hide(): void {
