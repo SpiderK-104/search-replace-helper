@@ -13,11 +13,18 @@ import {
 	setSearchIndexEffect,
 	setSearchScopeEffect,
 	type SearchConfig,
+	type SearchFieldValue,
 } from './engine';
-import { SearchReplacePopup, type PopupPoint, type PopupHandlers } from './popup';
+import {
+	DEFAULT_POPUP_HINT,
+	SearchReplacePopup,
+	type PopupPoint,
+	type PopupHandlers,
+} from './popup';
 
 const installedViews = new WeakSet<EditorView>();
 const SELECTION_HIGHLIGHT_COLOR_VARIABLE = '--sr-helper-selection-color';
+const REGEX_LIKE_PATTERN = /[\\^$.|?*+()[\]{}]/;
 
 function ensureExtension(view: EditorView): void {
 	if (installedViews.has(view)) {
@@ -224,26 +231,45 @@ export class SearchReplaceController {
 			return;
 		}
 		const value = readSearchValue(view);
-		if (!value.active) {
+		popup.setScope(value.scope !== null);
+		if (!value.active || value.config.term.length === 0) {
 			popup.setCount('0');
-			return;
-		}
-		if (value.config.term.length === 0) {
-			popup.setCount('0');
+			popup.setHint(DEFAULT_POPUP_HINT);
 			return;
 		}
 		if (value.invalidRegex) {
 			popup.setCount('Invalid pattern');
+			popup.setHint(
+				'Fix the regular expression, or turn .* off to search literally',
+			);
 			return;
 		}
 		if (value.matches.length === 0) {
-			popup.setCount('No results');
+			popup.setCount(
+				value.scope ? 'No results in selection' : 'No results in note',
+			);
+			popup.setHint(this.noResultsHint(value));
 			return;
 		}
 		const total = value.truncated
 			? `${value.matches.length}+`
 			: String(value.matches.length);
 		popup.setCount(`${value.currentIndex + 1}/${total}`);
+		popup.setHint(DEFAULT_POPUP_HINT);
+	}
+
+	private noResultsHint(value: SearchFieldValue): string {
+		const term = value.config.term;
+		if (/^\s|\s$/.test(term)) {
+			return 'No match — check leading or trailing spaces in the pattern';
+		}
+		if (!value.config.regex && REGEX_LIKE_PATTERN.test(term)) {
+			return 'Looks like a regex — press .* to turn regular expressions on';
+		}
+		if (value.config.regex && /^[\^$]/.test(term) && value.scope) {
+			return 'No match — ^ and $ are relative to the selection';
+		}
+		return DEFAULT_POPUP_HINT;
 	}
 
 	private syncCurrent(): void {

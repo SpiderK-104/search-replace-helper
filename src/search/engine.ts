@@ -2,8 +2,8 @@ import {
 	RangeSetBuilder,
 	StateEffect,
 	StateField,
+	Text,
 	type Extension,
-	type Text,
 	type Transaction,
 } from '@codemirror/state';
 import { Decoration, EditorView, type DecorationSet } from '@codemirror/view';
@@ -93,6 +93,12 @@ function collectMatches(
 	const effectiveScope = boundedScope(doc, scope);
 	const from = effectiveScope?.from ?? 0;
 	const to = effectiveScope?.to ?? doc.length;
+	const offset =
+		config.regex && effectiveScope !== null && from > 0 ? from : 0;
+	const searchDoc =
+		offset > 0 ? Text.of(doc.sliceString(from, to).split('\n')) : doc;
+	const searchFrom = offset > 0 ? 0 : from;
+	const searchTo = offset > 0 ? searchDoc.length : to;
 
 	let cursor: Iterator<MatchStep>;
 	if (config.regex) {
@@ -105,17 +111,17 @@ function collectMatches(
 			return { matches: [], truncated: false, invalidRegex: true };
 		}
 		cursor = new RegExpCursor(
-			doc,
+			searchDoc,
 			config.term,
 			{ ignoreCase: !config.caseSensitive },
-			from,
-			to,
+			searchFrom,
+			searchTo,
 		);
 	} else {
 		cursor = new SearchQuery({
 			search: config.term,
 			caseSensitive: config.caseSensitive,
-		}).getCursor(doc, from, to);
+		}).getCursor(searchDoc, searchFrom, searchTo);
 	}
 
 	const matches: SearchMatch[] = [];
@@ -125,11 +131,9 @@ function collectMatches(
 		if (step.done) {
 			break;
 		}
-		if (
-			step.value.from < from ||
-			step.value.to > to ||
-			step.value.from >= step.value.to
-		) {
+		const matchFrom = offset + step.value.from;
+		const matchTo = offset + step.value.to;
+		if (matchFrom < from || matchTo > to || matchFrom >= matchTo) {
 			continue;
 		}
 		if (matches.length >= MAX_MATCHES) {
@@ -137,8 +141,8 @@ function collectMatches(
 			break;
 		}
 		matches.push({
-			from: step.value.from,
-			to: step.value.to,
+			from: matchFrom,
+			to: matchTo,
 			match: step.value.match,
 		});
 	}

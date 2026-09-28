@@ -1,5 +1,8 @@
 import { CSS_PREFIX } from '../constants';
 
+export const DEFAULT_POPUP_HINT =
+	'Enter: replace · ↑ ↓ navigate · Esc: close';
+
 export interface PopupPoint {
 	x: number;
 	y: number;
@@ -24,6 +27,9 @@ export class SearchReplacePopup {
 	private readonly regexButton: HTMLElement;
 	private readonly caseButton: HTMLElement;
 	private readonly countLabel: HTMLElement;
+	private readonly scopeChip: HTMLElement;
+	private readonly regexChip: HTMLElement;
+	private readonly hintLabel: HTMLElement;
 	private readonly dragHandle: HTMLElement;
 	private readonly closeButton: HTMLElement;
 	private readonly replaceButton: HTMLElement;
@@ -101,10 +107,19 @@ export class SearchReplacePopup {
 		});
 
 		const footer = this.root.createDiv({ cls: `${CSS_PREFIX}__footer` });
-		this.countLabel = footer.createSpan({ cls: `${CSS_PREFIX}__count` });
-		footer.createSpan({
+		const status = footer.createSpan({ cls: `${CSS_PREFIX}__status` });
+		this.scopeChip = status.createSpan({
+			cls: `${CSS_PREFIX}__chip`,
+			text: 'Selection',
+		});
+		this.regexChip = status.createSpan({
+			cls: `${CSS_PREFIX}__chip ${CSS_PREFIX}__chip-regex`,
+			text: 'Regex',
+		});
+		this.countLabel = status.createSpan({ cls: `${CSS_PREFIX}__count` });
+		this.hintLabel = footer.createSpan({
 			cls: `${CSS_PREFIX}__hint`,
-			text: 'Enter: replace · ↑ ↓ navigate · Esc: close',
+			text: DEFAULT_POPUP_HINT,
 		});
 
 		this.bindEvents();
@@ -287,13 +302,28 @@ export class SearchReplacePopup {
 
 	setRegex(enabled: boolean): void {
 		this.regexButton.toggleClass(`${CSS_PREFIX}__option-active`, enabled);
+		this.regexButton.setAttribute('aria-pressed', String(enabled));
+		this.regexButton.setAttribute(
+			'title',
+			enabled ? 'Regular expression: on' : 'Regular expression: off',
+		);
+		this.regexChip.toggleClass(`${CSS_PREFIX}__chip-active`, enabled);
 	}
 
 	setCase(enabled: boolean): void {
 		this.caseButton.toggleClass(`${CSS_PREFIX}__option-active`, enabled);
+		this.caseButton.setAttribute('aria-pressed', String(enabled));
+	}
+
+	setScope(active: boolean): void {
+		this.scopeChip.toggleClass(`${CSS_PREFIX}__chip-active`, active);
 	}
 
 	setCount(count: string): void {
 		this.countLabel.setText(count);
+	}
+
+	setHint(hint: string): void {
+		this.hintLabel.setText(hint);
 	}
 }

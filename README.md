@@ -92,7 +92,9 @@ There is no need to delete the selected text from the query field: it is never i
 
 ### Regular expressions
 
-Toggle the `.*` button to search with regular expressions (JavaScript syntax). Replacement strings support capture groups: `$1`, `$2`, …, `$&` (the whole match) and `$$` (a literal `$`). In plain-text mode, `\n`, `\t` and `\r` in the replacement are converted to their literal characters.
+Toggle the `.*` button to search with regular expressions (JavaScript syntax). The footer shows a **Regex** chip whenever it is on and a **Selection** chip whenever the search is limited to the selected text. Replacement strings support capture groups: `$1`, `$2`, …, `$&` (the whole match) and `$$` (a literal `$`). In plain-text mode, `\n`, `\t` and `\r` in the replacement are converted to their literal characters.
+
+Inside a selection, `^` and `$` refer to the start and end of that selection, so `^##` matches a heading that begins exactly where your selection starts. Trailing spaces in the pattern still count: `^一、` matches, but `^一、 ` only matches when a space follows the `、`. When nothing matches, the footer names the likely reason: leading or trailing spaces, a pattern that looks like a regex while `.*` is off, or an invalid pattern.
 
 ### Notes & limitations
 
@@ -196,7 +198,11 @@ npm run build
 
 ### 正则表达式
 
-点击 `.*` 按钮可启用正则搜索（JavaScript 语法）。替换文本支持捕获组：`$1`、`$2`、…、`$&`（整个匹配）以及 `$$`（字面量 `$`）。在纯文本模式下，替换文本中的 `\n`、`\t` 和 `\r` 会被转换为对应的字面字符。
+点击 `.*` 按钮可启用正则搜索（JavaScript 语法）。启用后面板底部会显示 **Regex** 标记，搜索范围限制在选区时会显示 **Selection** 标记。替换文本支持捕获组：`$1`、`$2`、…、`$&`（整个匹配）以及 `$$`（字面量 `$`）。在纯文本模式下，替换文本中的 `\n`、`\t` 和 `\r` 会被转换为对应的字面字符。
+
+在选区中，`^` 和 `$` 表示该选区的起点和终点，因此 `^##` 会匹配正好从选区开头开始的标题。模式中的空格仍然有效：`^一、` 可以匹配，但 `^一、 ` 只在 `、` 后面确实有空格时才匹配。
+
+找不到结果时，面板会直接说明原因：模式首尾是否有空格、是否忘记打开 `.*`、或者正则是否无效。
 
 ### 说明与限制
 
