@@ -329,8 +329,12 @@ export function makeReplacementText(
 	return unquoted;
 }
 
+export function hasSearchField(view: EditorView): boolean {
+	return view.state.field(searchStateField, false) !== undefined;
+}
+
 export function readSearchValue(view: EditorView): SearchFieldValue {
-	return view.state.field(searchStateField);
+	return view.state.field(searchStateField, false) ?? emptySearchValue();
 }
 
 export function currentNode(view: EditorView): SearchMatch | null {

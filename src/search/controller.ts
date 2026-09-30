@@ -5,6 +5,7 @@ import type SearchReplaceHelperPlugin from '../main';
 import { getCmView, getSelectionBoundingRange } from '../utils/editor';
 import {
 	clearSearchEffect,
+	hasSearchField,
 	makeReplacementText,
 	readSearchValue,
 	searchExtension,
@@ -22,16 +23,19 @@ import {
 	type PopupHandlers,
 } from './popup';
 
-const installedViews = new WeakSet<EditorView>();
 const SELECTION_HIGHLIGHT_COLOR_VARIABLE = '--sr-helper-selection-color';
 const REGEX_LIKE_PATTERN = /[\\^$.|?*+()[\]{}]/;
 
 function ensureExtension(view: EditorView): void {
-	if (installedViews.has(view)) {
+	// Obsidian reconfigures the CM view on its own (Live Preview block mode
+	// switches, reading/source toggles, leaf remounts). A reconfigure rebuilds
+	// the state from a configuration that no longer contains `searchExtension`,
+	// so the field disappears from a view we already "installed" into. Probe the
+	// live state instead of caching the view identity.
+	if (hasSearchField(view)) {
 		return;
 	}
 	view.dispatch({ effects: StateEffect.appendConfig.of(searchExtension) });
-	installedViews.add(view);
 }
 
 export class SearchReplaceController {
