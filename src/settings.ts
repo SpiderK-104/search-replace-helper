@@ -1,6 +1,15 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 import type SearchReplaceHelperPlugin from './main';
+import {
+	DEFAULT_HISTORY_LIMIT,
+	DEFAULT_HISTORY_SHORTCUT,
+	MAX_HISTORY_LIMIT,
+	MIN_HISTORY_LIMIT,
+	normalizeHistoryLimit,
+	normalizeHistoryShortcut,
+	type SearchHistoryEntry,
+} from './search/history';
 
 export interface SearchReplaceSettings {
 	defaultRegex: boolean;
@@ -9,6 +18,10 @@ export interface SearchReplaceSettings {
 	popupOpacity: number;
 	popupFontSize: number;
 	rememberLastPosition: boolean;
+	enableSearchHistory: boolean;
+	searchHistoryLimit: number;
+	searchHistoryShortcut: string;
+	searchHistory: SearchHistoryEntry[];
 }
 
 export const DEFAULT_SETTINGS: SearchReplaceSettings = {
@@ -18,6 +31,10 @@ export const DEFAULT_SETTINGS: SearchReplaceSettings = {
 	popupOpacity: 0.9,
 	popupFontSize: 14,
 	rememberLastPosition: true,
+	enableSearchHistory: true,
+	searchHistoryLimit: DEFAULT_HISTORY_LIMIT,
+	searchHistoryShortcut: DEFAULT_HISTORY_SHORTCUT,
+	searchHistory: [],
 };
 
 const HIGHLIGHT_COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
@@ -97,6 +114,34 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 				name: 'Remember popup position',
 				desc: 'Reopen the floating window at its last position within the session.',
 				control: { type: 'toggle', key: 'rememberLastPosition' },
+			},
+			{
+				name: 'Remember find and replace history',
+				desc: 'Record each find and replace combo so you can reuse it later.',
+				control: { type: 'toggle', key: 'enableSearchHistory' },
+			},
+			{
+				name: 'History entries to keep',
+				desc: `How many recent combos to keep. Favorites are never dropped.`,
+				control: {
+					type: 'slider',
+					key: 'searchHistoryLimit',
+					min: MIN_HISTORY_LIMIT,
+					max: MAX_HISTORY_LIMIT,
+					step: 1,
+					defaultValue: DEFAULT_HISTORY_LIMIT,
+					displayFormat: (value) => String(value),
+				},
+			},
+			{
+				name: 'History shortcut',
+				desc: 'Keyboard shortcut that opens the history picker, e.g. Alt+H.',
+				control: {
+					type: 'text',
+					key: 'searchHistoryShortcut',
+					defaultValue: DEFAULT_HISTORY_SHORTCUT,
+					placeholder: DEFAULT_HISTORY_SHORTCUT,
+				},
 			},
 		];
 	}
@@ -180,6 +225,71 @@ export class SearchReplaceSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.rememberLastPosition = value;
 						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl).setName('History').setHeading();
+
+		new Setting(containerEl)
+			.setName('Remember find and replace history')
+			.setDesc('Record each find and replace combo so you can reuse it later.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableSearchHistory)
+					.onChange(async (value) => {
+						this.plugin.settings.enableSearchHistory = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName('History entries to keep')
+			.setDesc('How many recent combos to keep. Favorites are never dropped.')
+			.addSlider((slider) =>
+				slider
+					.setLimits(
+						MIN_HISTORY_LIMIT,
+						MAX_HISTORY_LIMIT,
+						1,
+					)
+					.setValue(this.plugin.settings.searchHistoryLimit)
+					.onChange(async (value) => {
+						this.plugin.settings.searchHistoryLimit =
+							normalizeHistoryLimit(value);
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName('History shortcut')
+			.setDesc(
+				'Keyboard shortcut that opens the history picker. Use "Alt+H" syntax; a modifier is required. Obsidian\'s key syntax is also accepted, e.g. "Mod+Shift+H".',
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder(DEFAULT_HISTORY_SHORTCUT)
+					.setValue(this.plugin.settings.searchHistoryShortcut)
+					.onChange(async (value) => {
+						const normalized = normalizeHistoryShortcut(value);
+						this.plugin.settings.searchHistoryShortcut = normalized;
+						if (normalized !== value) {
+							text.setValue(normalized);
+						}
+						this.plugin.controller.updateAppearance();
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName('Clear history')
+			.setDesc(
+				'Remove every saved combo, including favorites. Search text is stored in this vault\'s plugin data.',
+			)
+			.addButton((button) =>
+				button
+					.setButtonText('Clear')
+					.onClick(async () => {
+						await this.plugin.clearSearchHistory();
 					}),
 			);
 	}

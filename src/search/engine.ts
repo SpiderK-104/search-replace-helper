@@ -53,7 +53,7 @@ export function emptySearchValue(): SearchFieldValue {
 	};
 }
 
-interface MatchCollection {
+export interface MatchCollection {
 	matches: SearchMatch[];
 	truncated: boolean;
 	invalidRegex: boolean;
@@ -331,6 +331,14 @@ export function makeReplacementText(
 
 export function hasSearchField(view: EditorView): boolean {
 	return view.state.field(searchStateField, false) !== undefined;
+}
+
+export function resolveMatches(
+	doc: Text,
+	config: SearchConfig,
+	scope: DocRange | null,
+): MatchCollection {
+	return collectMatches(doc, config, scope);
 }
 
 export function readSearchValue(view: EditorView): SearchFieldValue {

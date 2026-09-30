@@ -39,6 +39,10 @@ This plugin removes the middle cleanup step. The selection remains the search sc
 - **Readable, resizable panel** – adjust the panel font size in settings and drag its lower-right corner to resize it.
 - **Live match count** – type to see the `current/total` counter update immediately.
 - **Options** – plain text or regular expression, and match-case toggle.
+- **Search history and favorites** – every find and replace combo you use is recorded, and the two ways to reuse it are deliberately different:
+  - **`Alt+H` (small batch)** – select text, press the history shortcut, pick a combo, and it replaces **every match in the selection** in one undo step. The panel never opens.
+  - **`🕐` in the panel (fine tuning)** – pick a combo to load it into the panel, then adjust it and press `Enter` / `Shift+Enter` as usual. Nothing is replaced by choosing.
+  - Every row shows how many matches the combo currently has in your selection, so you can commit without opening anything. Star a combo to pin it to **Favorites** so it is never dropped.
 - **Keyboard-first replacement**:
   - `Enter` – replace the current match and jump to the next one.
   - `Shift+Enter` – replace all matches in scope.
@@ -89,6 +93,34 @@ There is no need to delete the selected text from the query field: it is never i
 | Popup opacity           | Adjust transparency of the floating panel.                 |
 | Popup font size         | Adjust the font size of the floating panel.                 |
 | Remember popup position | Reopen the panel at its last position within the session.  |
+| Remember find and replace history | Record each find and replace combo for reuse.      |
+| History entries to keep | How many recent combos to keep. Favorites are never dropped.|
+| History shortcut        | Shortcut that applies a combo to the selection, `Alt+H` by default. |
+| Clear history           | Remove every saved combo, including favorites.             |
+
+### Search history
+
+Each combo records the find text, the replacement, and both toggles, because `**` means something very different with `.*` on and off. Use the `🕐` button in the panel, the history shortcut, or the **Apply find and replace history to the selection** command.
+
+There are two ways to use a combo, and they do different things on purpose:
+
+| Entry point | What picking a combo does |
+| ------------ | -------------------------- |
+| `Alt+H`, or the command, with a selection active | Replaces **every match in the selection** in one undo step. The panel does not open. |
+| `🕐` in the panel | Loads the combo into **Find** and **Replace** and changes nothing. Press `Enter` / `Shift+Enter` when you are happy with it. |
+
+In the picker:
+
+- The right-hand badge is the live match count for the current selection. It is `0` when nothing would change, and `invalid` when the stored pattern no longer compiles.
+- `Favorites` are listed first and are never removed by the size limit.
+- `Recently used` is most-recent-first, capped by **History entries to keep**. Applying a combo counts as using it.
+- An empty replacement is shown as *Delete*.
+- `.*` and `Aa` badges show the toggles the combo will restore.
+- Click the star, or press `Mod+Shift+F`, to favorite the highlighted combo.
+
+`Alt+H` requires a selection and never falls back to the whole note – if there is no selection it just tells you to select some text. Running it twice is safe: the second run finds no matches and does nothing. A notice reports how many matches were replaced, and `Ctrl+Z` reverts the whole operation in one step.
+
+A combo is recorded when you replace, replace all, or close the panel. History lives in this vault's plugin data, which Obsidian Sync will synchronize. Use **Clear history** to remove it.
 
 ### Regular expressions
 
@@ -145,6 +177,10 @@ See [LICENSE](./LICENSE).
 - **清晰且可调整的面板** – 可在设置中调整面板字体大小，并拖动面板右下角调整尺寸。
 - **实时命中计数** – 输入时立即显示 `当前/总数`，无需等待或切换窗口。
 - **选项开关** – 纯文本或正则表达式，以及区分大小写开关。
+- **查找历史与收藏** – 使用过的「查找 + 替换 + 开关」组合会被记录，复用方式有两种，且刻意不同：
+  - **`Alt+H`（小批量）** – 选中文本，按下历史快捷键，选中一个组合，即在**选区内全部替换**，一步撤销，面板不会打开。
+  - **面板中的 `🕐`（微调）** – 选中组合后回填 **查找** / **替换** 框，不做任何替换，确认后再按 `Enter` / `Shift+Enter`。
+  - 每行右侧显示该组合在当前选区中的实时命中数，因此无需打开任何窗口即可放心执行。点击星标可收藏，固定在 **Favorites** 分组且永不因数量上限被淘汰。
 - **键盘优先替换**：
   - `Enter` – 替换当前匹配项并跳到下一处。
   - `Shift+Enter` – 替换作用范围内的所有匹配项。
@@ -195,6 +231,34 @@ npm run build
 | 面板透明度             | 调节悬浮面板的透明度。                 |
 | 面板字体大小           | 调节悬浮面板的字体大小。               |
 | 记住面板位置           | 在本次会话中记住并恢复面板上次的位置。 |
+| 记录查找替换历史       | 记录每个查找替换组合以便复用。         |
+| 保留历史条数           | 保留多少条最近记录，收藏项永不被淘汰。 |
+| 历史快捷键             | 将组合应用到选区的快捷键，默认为 `Alt+H`。   |
+| 清空历史               | 删除全部已保存的组合，包含收藏项。     |
+
+### 查找历史
+
+每条记录都会保存查找内容、替换内容以及两个开关，因为 `**` 在 `.*` 开启和关闭时是完全不同的操作。可以通过面板中的 `🕐` 按钮、历史快捷键，或 **Apply find and replace history to the selection** 命令打开。
+
+复用方式有两种，且刻意不同：
+
+| 入口 | 选中组合后会发生什么 |
+| ---- | -------------------- |
+| `Alt+H` 或该命令（需已有选区） | 在**选区内全部替换**，一步撤销，面板不打开。 |
+| 面板中的 `🕐` | 仅把组合回填到 **查找** / **替换** 框，不做任何替换；确认后按 `Enter` / `Shift+Enter`。 |
+
+在列表中：
+
+- 右侧标记是该组合在**当前选区**中的实时命中数。命中为 0 时显示 `0`，保存的模式无法编译时显示 `invalid`。
+- **Favorites** 排在最前，且不会因数量上限被删除。
+- **Recently used** 按最近使用排序，数量受「保留历史条数」限制；执行一次组合即算使用过。
+- 替换内容为空时显示为 *Delete*（即删除）。
+- `.*` 和 `Aa` 标记表示该组合会恢复的开关状态。
+- 点击星标，或按 `Mod+Shift+F`，即可收藏/取消收藏当前高亮项。
+
+`Alt+H` 必须先有选区，且**不会退化为整篇笔记**——没有选区时只会提示你先选中文本。重复执行是安全的：第二次找不到匹配，不会改动任何内容。执行后会弹出提示告知替换了多少处，`Ctrl+Z` 可一步回退整个操作。
+
+组合会在执行替换、全部替换或关闭面板时被记录。历史保存在当前仓库的插件数据中，会随 Obsidian Sync 同步。可通过「清空历史」删除。
 
 ### 正则表达式
 

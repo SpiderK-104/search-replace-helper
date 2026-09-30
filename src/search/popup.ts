@@ -12,6 +12,7 @@ export interface PopupHandlers {
 	onQueryChange(term: string): void;
 	onToggleRegex(enabled: boolean): void;
 	onToggleCase(enabled: boolean): void;
+	onOpenHistory(): void;
 	onReplaceCurrent(): void;
 	onReplaceAll(): void;
 	onNavigate(direction: 1 | -1): void;
@@ -26,6 +27,7 @@ export class SearchReplacePopup {
 	private readonly replaceInput: HTMLInputElement;
 	private readonly regexButton: HTMLElement;
 	private readonly caseButton: HTMLElement;
+	private readonly historyButton: HTMLElement;
 	private readonly countLabel: HTMLElement;
 	private readonly scopeChip: HTMLElement;
 	private readonly regexChip: HTMLElement;
@@ -80,6 +82,15 @@ export class SearchReplacePopup {
 				'aria-label': 'Match case',
 			},
 			text: 'Aa',
+		});
+		this.historyButton = findRow.createEl('button', {
+			cls: `${CSS_PREFIX}__option ${CSS_PREFIX}__history-button`,
+			attr: {
+				type: 'button',
+				title: 'Search history',
+				'aria-label': 'Search history',
+			},
+			text: '🕐',
 		});
 
 		const replaceRow = this.root.createDiv({ cls: `${CSS_PREFIX}__row` });
@@ -145,6 +156,9 @@ export class SearchReplacePopup {
 			this.setCase(!enabled);
 			this.handlers.onToggleCase(!enabled);
 			this.findInput.focus();
+		});
+		this.historyButton.addEventListener('click', () => {
+			this.handlers.onOpenHistory();
 		});
 
 		this.findInput.addEventListener('input', () =>
@@ -317,6 +331,13 @@ export class SearchReplacePopup {
 
 	setScope(active: boolean): void {
 		this.scopeChip.toggleClass(`${CSS_PREFIX}__chip-active`, active);
+	}
+
+	setHistoryEnabled(enabled: boolean): void {
+		this.historyButton.toggleClass(
+			`${CSS_PREFIX}__history-button-hidden`,
+			!enabled,
+		);
 	}
 
 	setCount(count: string): void {

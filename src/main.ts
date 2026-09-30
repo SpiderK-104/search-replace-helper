@@ -6,6 +6,12 @@ import {
 	SearchReplaceSettings,
 	SearchReplaceSettingTab,
 } from './settings';
+import {
+	normalizeHistory,
+	normalizeHistoryLimit,
+	normalizeHistoryShortcut,
+	trimSearchHistory,
+} from './search/history';
 import { SearchReplaceController } from './search/controller';
 
 export default class SearchReplaceHelperPlugin extends Plugin {
@@ -45,7 +51,28 @@ export default class SearchReplaceHelperPlugin extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: 'apply-search-history',
+			name: 'Apply find and replace history to the selection',
+			callback: () => {
+				if (!this.settings.enableSearchHistory) {
+					new Notice('Find and replace history is turned off in settings.');
+					return;
+				}
+				if (!this.controller.hasSelectionScope()) {
+					new Notice('Select some text first, then pick a history entry.');
+					return;
+				}
+				this.controller.openHistory('apply');
+			},
+		});
+
 		this.addSettingTab(new SearchReplaceSettingTab(this.app, this));
+	}
+
+	async clearSearchHistory(): Promise<void> {
+		await this.controller.clearHistory();
+		new Notice('Find and replace history cleared.');
 	}
 
 	onunload() {
@@ -62,6 +89,14 @@ export default class SearchReplaceHelperPlugin extends Plugin {
 			settings.selectionHighlightColor,
 		);
 		settings.popupFontSize = normalizePopupFontSize(settings.popupFontSize);
+		settings.searchHistoryLimit = normalizeHistoryLimit(settings.searchHistoryLimit);
+		settings.searchHistoryShortcut = normalizeHistoryShortcut(
+			settings.searchHistoryShortcut,
+		);
+		settings.searchHistory = trimSearchHistory(
+			normalizeHistory(settings.searchHistory),
+			settings.searchHistoryLimit,
+		);
 		this.settings = settings;
 	}
 
