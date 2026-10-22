@@ -13,15 +13,18 @@ A focused find-and-replace panel for [Obsidian](https://obsidian.md) that remove
 
 **Find locally, highlight, and replace selected content in place.**
 
+>局部查找，高亮显示并局部替换选中的内容
+
 ![demo](assets/jbth_glxs.webp)
 
 
 **Supports opening the replacement history and directly filling in a record; each record row shows the number of matches below it, enabling quick replacement.**
-
+>支持打开历史替换记录，并且直接填充记录，每条记录栏下方有记录匹配条数，实现快速替换
 ![demo](assets/lsjlksth.webp)
 
 **Press your custom shortcut to bring up the history of find-and-replace records directly; select a scheme and execute it right away.
 You can also favorite frequently used find/replace schemes; they will be displayed at the front of the replacement history panel.**
+>按下你自定义的快捷键，直接唤出历史查找替换记录栏，选择方案后直接执行。同时，您还可以对某些常见的查找/替换方案进行收藏，它会展示在替换记录栏前列
 ![demo](assets/zjdklsjll.webp)
 
 
