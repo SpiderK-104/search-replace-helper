@@ -9,6 +9,17 @@ A focused find-and-replace panel for [Obsidian](https://obsidian.md) that remove
 一个专注于查找替换的 Obsidian 面板，专门去掉最麻烦的多余一步：选中的文字不会被复制到查询框。选区会使用你选择的颜色高亮，**查找** 输入框从空白开始，命中结果会用另一种颜色显示。配置的快捷键可以切换面板开关，因此不必再手工点击关闭按钮。
 
 ---
+## Preview
+
+局部替换与高亮显示
+![demo](assets/jbth_glxs.webp)
+
+历史记录快速替换
+![demo](assets/lsjlksth.webp)
+
+直接打开历史记录栏
+![demo](assets/zjdklsjll.webp)
+
 
 ## English
 
